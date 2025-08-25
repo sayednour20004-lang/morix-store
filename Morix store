@@ -1,0 +1,161 @@
+import { useState } from "react"; import { ShoppingCart, Shirt, Trash2, PlusCircle } from "lucide-react"; import { Button } from "@/components/ui/button"; import { Card, CardContent } from "@/components/ui/card";
+
+export default function HomePage() { const [cart, setCart] = useState([]); const [products, setProducts] = useState([ { id: 1, name: "Morix Classic Tee", price: 450, image: "https://via.placeholder.com/300x300?text=T-Shirt+1" }, { id: 2, name: "Luxury Black Tee", price: 520, image: "https://via.placeholder.com/300x300?text=T-Shirt+2" }, { id: 3, name: "Streetwear Oversize Tee", price: 480, image: "https://via.placeholder.com/300x300?text=T-Shirt+3" } ]); const [showCart, setShowCart] = useState(false); const [showCheckout, setShowCheckout] = useState(false); const [showConfirmation, setShowConfirmation] = useState(false); const [paymentMethod, setPaymentMethod] = useState("card"); const [showDashboard, setShowDashboard] = useState(false); const [newProduct, setNewProduct] = useState({ name: "", price: "", image: "" });
+
+const addToCart = (product) => { setCart([...cart, product]); };
+
+const removeFromCart = (index) => { const updatedCart = [...cart]; updatedCart.splice(index, 1); setCart(updatedCart); };
+
+const handleCheckout = (e) => { e.preventDefault(); setCart([]); setShowCheckout(false); setShowConfirmation(true); };
+
+const addProduct = () => { if (newProduct.name && newProduct.price && newProduct.image) { const newItem = { id: products.length + 1, name: newProduct.name, price: parseFloat(newProduct.price), image: newProduct.image, }; setProducts([...products, newItem]); setNewProduct({ name: "", price: "", image: "" }); } };
+
+const deleteProduct = (id) => { setProducts(products.filter((p) => p.id !== id)); };
+
+return ( <div className="min-h-screen bg-black text-white font-sans"> {/* Navbar */} <header className="flex justify-between items-center px-8 py-4 shadow-md bg-black border-b border-gray-800"> <h1 className="text-2xl font-bold tracking-wide text-yellow-400">Morix</h1> <div className="flex items-center gap-4"> <Button variant="ghost" onClick={() => setShowDashboard(!showDashboard)} className="text-yellow-400"> Dashboard </Button> <Button variant="ghost" onClick={() => setShowCart(!showCart)} className="flex items-center gap-2 text-yellow-400"> <ShoppingCart className="w-5 h-5" /> Cart ({cart.length}) </Button> </div> </header>
+
+{/* Confirmation Message */}
+  {showConfirmation && (
+    <div className="text-center py-12 bg-green-900">
+      <h2 className="text-3xl font-bold mb-4 text-yellow-400">Order Confirmed ✅</h2>
+      <p className="text-lg">Thank you for shopping with Morix!</p>
+    </div>
+  )}
+
+  {/* Dashboard */}
+  {showDashboard && !showCart && !showCheckout && !showConfirmation && (
+    <div className="p-8">
+      <h2 className="text-3xl font-bold mb-6 text-yellow-400">Admin Dashboard</h2>
+
+      <div className="mb-6 flex gap-4">
+        <input
+          type="text"
+          placeholder="Product Name"
+          value={newProduct.name}
+          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+          className="p-2 rounded-lg text-black"
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value={newProduct.price}
+          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+          className="p-2 rounded-lg text-black"
+        />
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={newProduct.image}
+          onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+          className="p-2 rounded-lg text-black"
+        />
+        <Button onClick={addProduct} className="bg-yellow-400 text-black font-bold">
+          <PlusCircle className="w-5 h-5 mr-2" /> Add Product
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((product) => (
+          <Card key={product.id} className="bg-gray-900 border border-gray-700 shadow-lg rounded-2xl overflow-hidden">
+            <img src={product.image} alt={product.name} className="w-full h-64 object-cover" />
+            <CardContent className="p-4 flex flex-col gap-2">
+              <h3 className="text-xl font-semibold text-yellow-400">{product.name}</h3>
+              <p className="text-gray-300 font-medium">EGP {product.price}</p>
+              <Button onClick={() => deleteProduct(product.id)} className="bg-red-600 hover:bg-red-700">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Hero Section */}
+  {!showCart && !showCheckout && !showConfirmation && !showDashboard && (
+    <>
+      <section className="relative bg-gradient-to-r from-black to-gray-900 text-center py-20">
+        <h2 className="text-5xl font-extrabold mb-4 text-yellow-400">Luxury Streetwear</h2>
+        <p className="text-lg mb-6 text-gray-300">Discover premium quality Morix T-Shirts with unique designs</p>
+        <Button size="lg" className="rounded-2xl px-6 py-3 text-lg font-semibold bg-yellow-400 text-black hover:bg-yellow-500">
+          Shop Now
+        </Button>
+      </section>
+
+      {/* Products */}
+      <section className="px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((product) => (
+          <Card key={product.id} className="bg-gray-900 border border-gray-700 shadow-lg rounded-2xl overflow-hidden hover:scale-105 transition-transform">
+            <img src={product.image} alt={product.name} className="w-full h-64 object-cover" />
+            <CardContent className="p-4 flex flex-col gap-2">
+              <h3 className="text-xl font-semibold text-yellow-400">{product.name}</h3>
+              <p className="text-gray-300 font-medium">EGP {product.price}</p>
+              <Button onClick={() => addToCart(product)} className="rounded-xl mt-2 bg-yellow-400 text-black font-bold hover:bg-yellow-500">
+                <Shirt className="w-4 h-4 mr-2" /> Add to Cart
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+    </>
+  )}
+
+  {/* Cart */}
+  {showCart && !showCheckout && (
+    <div className="p-8">
+      <h2 className="text-3xl font-bold mb-6 text-yellow-400">Your Cart</h2>
+      {cart.length === 0 ? (
+        <p>Your cart is empty</p>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {cart.map((item, index) => (
+            <div key={index} className="flex justify-between items-center bg-gray-900 p-4 rounded-xl border border-gray-700">
+              <span>{item.name}</span>
+              <span>EGP {item.price}</span>
+              <Button onClick={() => removeFromCart(index)} className="bg-red-600 hover:bg-red-700">
+                Remove
+              </Button>
+            </div>
+          ))}
+          <p className="text-xl font-semibold mt-4">Total: EGP {cart.reduce((acc, item) => acc + item.price, 0)}</p>
+          <Button onClick={() => setShowCheckout(true)} className="bg-yellow-400 text-black font-bold">
+            Proceed to Checkout
+          </Button>
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Checkout */}
+  {showCheckout && (
+    <div className="p-8 max-w-xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6 text-yellow-400">Checkout</h2>
+      <form onSubmit={handleCheckout} className="flex flex-col gap-4">
+        <input type="text" placeholder="Full Name" required className="p-3 rounded-lg text-black" />
+        <input type="email" placeholder="Email" required className="p-3 rounded-lg text-black" />
+        <input type="text" placeholder="Address" required className="p-3 rounded-lg text-black" />
+
+        <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="p-3 rounded-lg text-black">
+          <option value="card">Credit/Debit Card</option>
+          <option value="cod">Cash on Delivery</option>
+          <option value="vodafone">Vodafone Cash</option>
+        </select>
+
+        {paymentMethod === "card" && (
+          <input type="text" placeholder="Card Number" required className="p-3 rounded-lg text-black" />
+        )}
+
+        <Button type="submit" className="bg-yellow-400 text-black font-bold">
+          Place Order
+        </Button>
+      </form>
+    </div>
+  )}
+
+  {/* Footer */}
+  <footer className="bg-black text-gray-400 text-center py-6 mt-12 border-t border-gray-800">
+    <p>&copy; {new Date().getFullYear()} Morix. All rights reserved.</p>
+  </footer>
+</div>
+
+); }
